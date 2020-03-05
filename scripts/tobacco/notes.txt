@@ -1,0 +1,5 @@
+1. create list of processors; one per-lang
+2. create sub-class of SeqClass that takes current lang
+3. create DataLoader that takes list of DataLoaders
+	- when you call training loop, it automatically loops through languages
+	- this would take care of lang_key as well
