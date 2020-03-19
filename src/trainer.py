@@ -3,6 +3,7 @@ import logging
 import os
 import random
 import traceback
+from collections import defaultdict
 
 import numpy as np
 import torch
@@ -435,16 +436,27 @@ class BaseTrainer(object):
         model = self.model
         model.eval()
         model.reset_metrics()
+        #if args.separate_eval:
+        #    eval_loss = defaultdict(int)
+        #else:
         eval_loss = 0
         step = 0
         for batch in tqdm(dataloader, desc="Iteration"):
             batch = tuple(t.to(self.device) for t in batch)
             with torch.no_grad():
-                #if step % 100 == 0:
-                #    print(*batch)
                 loss = model(*batch, lang_key=dataloader.lang_key)
+                #if args.separate_eval:
+                #    ex_lang = batch[-1].item()
+                #    eval_loss[ex_lang] += loss.mean().item()
+                #else:
                 eval_loss += loss.mean().item()
             step += 1
+
+        #if args.separate_eval:
+        #    for ex_lang in eval_loss.keys():
+        #        eval_loss[ex_lang] = eval_loss[ex_lang] / step
+        #    return eval_loss, model.get_metrics(True)
+        #else:
         return eval_loss / step, model.get_metrics(True)
 
     def update_lr_save_model_maybe_stop(self, eval_res, epoch_idx):
@@ -545,7 +557,8 @@ class BaseTrainer(object):
 
     def final_eval(self):
         raise NotImplementedError
-
+    
+    # LOOK INTO THIS: LANGUAGE-SPECIFIC EVAL
     def do_eval(self, mode):
         args, logger = self.args, self.logger
         examples = self.get_examples(mode)

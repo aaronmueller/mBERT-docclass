@@ -13,9 +13,9 @@ export LD_LIBRARY_PATH=/usr/local/cuda/lib64:/home/shijie/local/cuda/lib64
 #for bs in 16 32; do
 #for lr in 5e-5 3e-5 2e-5; do
 #for ep in 3.0 4.0 6.0 8.0 12.0 16.0; do
-for lr in 2e-5; do
+#for lr in 2e-5; do
 #for ep in 6.0 8.0 12.0 16.0; do
-for ep in 3.0 4.0; do
+#for ep in 3.0 4.0; do
 CUDA_VISIBLE_DEVICES=$gpu
 python src/run_classifier.py \
     --task_name tobacco-feedback \

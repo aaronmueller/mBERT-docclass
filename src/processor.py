@@ -182,9 +182,6 @@ class MLDocProcessor(TSVProcessor):
         fp = f"{data_dir}/{self.language}.dev"
         return self._create_examples(self._read_tsv(fp), "dev")
 
-    def get_languages(self):
-        return [""]
-
     def get_test_examples(self, data_dir):
         fp = f"{data_dir}/{self.language}.test"
         return self._create_examples(self._read_tsv(fp), "test")
@@ -287,6 +284,72 @@ class TobaccoProcessor(BaseProcessor):
                                       text_a=text_a,
                                       text_b=text_b,
                                       label=label))
+        return examples
+
+
+class MLDocFeedbackProcessor(TobaccoProcessor):
+    """Processor for the converted MLDoc JSON data set."""
+
+    def get_train_examples(self, data_dir):
+        if os.path.isfile(data_dir):
+            fp = data_dir
+        else:
+            fp = f"{data_dir}/combined_mldoc.json"
+        return self._create_examples(self._read_jsonl(fp), "train")
+
+    def get_dev_examples(self, data_dir):
+        if os.path.isfile(data_dir):
+            fp = data_dir
+        else:
+            fp = f"{data_dir}/combined_mldoc.json"
+        return self._create_examples(self._read_jsonl(fp), "dev")
+
+    def get_test_examples(self, data_dir):
+        if os.path.isfile(data_dir):
+            fp = data_dir
+        else:
+            fp = f"{data_dir}/combined_mldoc.json"
+        return self._create_examples(self._read_jsonl(fp), "test")
+    
+    def get_languages(self):
+        """Returns list of all languages in training set."""
+        return ["de", "en", "es", "fr", "it", "ja", "ru", "zh"]
+    
+    def get_labels(self):
+        """Returns list of all possible classification labels."""
+        return ["CCAT", "ECAT", "GCAT", "MCAT"]
+
+    # idea: new processor; list of processors per-lang
+    def _create_examples(self, objs, set_type):
+        """Creates examples for the training and dev sets."""
+        examples = []
+        for (i, obj) in enumerate(objs):
+            if obj['fold'] != set_type:
+                continue
+            if obj['lang'] != self.language and self.language != 'all':
+                continue
+            else:
+                example_lang = obj['lang']
+            guid = "%s-%s" % (set_type, i)
+            # text_a = obj['title']
+            sentences = sent_tokenize(obj['body'], lang=self.language)
+            if len(sentences) >= 2:
+                text_a = sentences[0]
+                text_b = sentences[1]
+            elif len(sentences) == 1:
+                text_a = sentences[0]
+                text_b = None
+            else:
+                #text_a = None
+                #text_b = None
+                continue
+            label = obj['label']
+            examples.append(
+                ClassificationExample(guid=guid,
+                                      text_a=text_a,
+                                      text_b=text_b,
+                                      label=label,
+                                      language=example_lang))
         return examples
 
 

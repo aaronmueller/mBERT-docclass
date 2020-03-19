@@ -223,11 +223,12 @@ class Trainer(BaseTrainer):
             "tobacco": processor.TobaccoProcessor,
             "tobacco-feedback": processor.TobaccoFeedbackProcessor,
             "langid": processor.LangIDProcessor,
+            "mldoc-json": processor.MLDocFeedbackProcessor,
         }
         if task_name not in processors:
             raise ValueError(f"Task not found: {task_name}")
 
-        if task_name == 'xnli' or task_name == 'mldoc' or 'tobacco' in task_name:
+        if task_name == 'xnli' or 'mldoc' in task_name or 'tobacco' in task_name:
             self.processor = processors[task_name](lang)
         elif task_name == 'langid':
             self.processor = processors[task_name](self.args.data_dir)
@@ -276,7 +277,7 @@ class Trainer(BaseTrainer):
         save_fp = f'{args.output_dir}/model.pth'
         self.load_model(save_fp)
 
-        if task_name == 'xnli' or task_name == 'mldoc' or 'tobacco' in task_name:
+        if task_name == 'xnli' or 'mldoc' in task_name or 'tobacco' in task_name:
             for trg_lang in tqdm(args.trg_lang, desc="Eval Lang"):
                 self.setup_processor(trg_lang)
                 write_file = f'{args.output_dir}/eval/{args.lang}-{trg_lang}/eval_results.txt'

@@ -2,13 +2,13 @@ import os
 import sys
 
 #LANG = sys.argv[1]
-LANG_MODELS = "model/tobacco-new/tuneall/one-model-sepclass"
+LANG_MODELS = "model/tobacco-new/tuneall/one-model"
 
 max_f1 = 0.0
-best_model = "bs1-lr2e-5-ep16.0/model.pth"
+best_model = "bs1-lr2e-5-ep3.0/model.pth"
 
 for subdir, dirs, files in os.walk(LANG_MODELS):
-    if subdir.startswith(LANG_MODELS+"/bs") and not subdir.endswith("eval"): #and not subdir.endswith(LANG):
+    if subdir.startswith(LANG_MODELS+"/bs1-") and not subdir.endswith("eval"): #and not subdir.endswith(LANG):
         with open(os.path.join(subdir, "eval_results.txt"), 'r') as results:
             f1 = 0.0
             for line in results:
