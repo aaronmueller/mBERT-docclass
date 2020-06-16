@@ -26,7 +26,7 @@ from torch.utils.data.distributed import DistributedSampler
 from tqdm import tqdm, trange
 
 import processor
-from module import DecoderConfigFactory, EncoderConfigFactory, SeqClassConfig, SeqSepTopClassConfig
+from module import DecoderConfigFactory, EncoderConfigFactory, SeqClassConfig, SeqSepTopClassConfig, BaselineSeqClassConfig
 from module.evaluator import AccClassifierEvaluator, FullClassifierEvaluator
 from trainer import BaseTrainer
 from util import Mode, maybe_mkdir, truncate_seq_pair
@@ -198,7 +198,11 @@ class Trainer(BaseTrainer):
 
         encoder_config = EncoderConfigFactory.build_config(args)
         decoder_config = DecoderConfigFactory.build_config(args)
-        if args.separate_top:
+        if args.lr_baseline:
+            model_config = BaselineSeqClassConfig(encoder_config=encoder_config,
+                                               decoder_config=decoder_config,
+                                               num_labels=num_labels)
+        elif args.separate_top:
             model_config = SeqSepTopClassConfig(encoder_config=encoder_config,
                                                 decoder_config=decoder_config,
                                                 num_labels=num_labels)
@@ -296,6 +300,6 @@ class Trainer(BaseTrainer):
 
 if __name__ == "__main__":
     # place holder
-    _ = torch.zeros(1).to('cuda')
+    # _ = torch.zeros(1).to('cuda')
     trainer = Trainer()
     trainer.run()

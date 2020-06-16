@@ -182,6 +182,81 @@ class SeqSepTopLabel(BaseModel):
 
 
 @dataclass
+class BaselineSeqClassConfig(BaseModelConfig):
+    num_labels: int = -1
+
+    def build(self):
+        return BaselineSeqClass(self)
+
+
+class BaselineSeqClass(BaseModel):
+    def __init__(self, config: BaselineSeqClassConfig):
+        assert isinstance(config, BaselineSeqClassConfig)
+        assert (isinstance(config.decoder_config, PoolDecoderConfig)
+                or isinstance(config.decoder_config, MeanPoolDecoderConfig))
+        super().__init__(config)
+        self.config = config
+        self.embedding = nn.EmbeddingBag(119547, 768, mode='mean')
+        self.classifier = nn.Linear(config.decoder_config.output_dim,
+                                    config.num_labels)
+        initrange = 0.1
+        self.embedding.weight.data.uniform_(-initrange, initrange)
+
+    def forward(self,
+                token: Tensor,
+                token_type: Tensor,
+                position: Tensor,
+                mask: Tensor,
+                label: Tensor,
+                ex_lang: Tensor,
+                lang_key: Optional[str] = None):
+        ctx = self.embedding(token)
+        #ctx = ctx.cpu()
+        logits = F.log_softmax(self.classifier(ctx), dim=-1)
+        loss = F.nll_loss(logits, label)
+        self.evaluator.add(label, logits)
+        return loss
+
+
+@dataclass
+class BaselineSeqLabelConfig(BaseModelConfig):
+    num_labels: int = -1
+    label_pad_idx: int = -1
+
+    def build(self):
+        return BaselineSeqLabel(self)
+
+
+class BaselineSeqLabel(BaseModel):
+    def __init__(self, config: BaselineSeqLabelConfig):
+        assert isinstance(config, BaselineSeqLabelConfig)
+        super().__init__(config)
+        self.config = config
+        self.embedding = nn.EmbeddingBag(119547, 768, mode='mean')
+        self.classifier = nn.Linear(config.decoder_config.output_dim,
+                                    config.num_labels)
+        initrange = 0.1
+        self.embedding.weight.data.uniform_(-initrange, initrange)
+
+    def forward(self,
+                token: Tensor,
+                token_type: Tensor,
+                position: Tensor,
+                mask: Tensor,
+                label: Tensor,
+                ex_lang: Tensor,
+                lang_key: Optional[str] = None):
+        ctx = self.embedding(inputs)
+        #ctx = ctx.cpu()
+        logits = F.log_softmax(self.classifier(ctx), dim=-1)
+        loss = F.nll_loss(logits.view(-1, self.config.num_labels),
+                          label.view(-1),
+                          ignore_index=self.config.label_pad_idx)
+        self.evaluator.add(label, logits)
+        return loss
+
+
+@dataclass
 class ParsingConfig(BaseModelConfig):
     num_labels: int = -1
     num_pos: int = -1

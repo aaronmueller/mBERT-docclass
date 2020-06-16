@@ -195,6 +195,10 @@ class BaseTrainer(object):
                             default=False,
                             action='store_true',
                             help="Enables language-specific top-level classification layers.")
+        parser.add_argument("--lr_baseline",
+                            default=False,
+                            action='store_true',
+                            help="Runs simple logistic regression baseline instead of BERT/XLM")
         parser.add_argument("--no_cuda",
                             default=False,
                             action='store_true',
@@ -286,9 +290,13 @@ class BaseTrainer(object):
             raise ValueError(
                 "Invalid gradient_accumulation_steps parameter: {}, should be >= 1"
                 .format(args.gradient_accumulation_steps))
-
-        args.train_batch_size = int(args.train_batch_size * self.n_gpu)
-        args.eval_batch_size = int(args.eval_batch_size * self.n_gpu)
+        
+        if self.n_gpu > 0:
+            args.train_batch_size = int(args.train_batch_size * self.n_gpu)
+            args.eval_batch_size = int(args.eval_batch_size * self.n_gpu)
+        else:
+            args.train_batch_size = int(args.train_batch_size)
+            args.eval_batch_size = int(args.eval_batch_size)
 
         set_seed(args.seed, self.n_gpu)
 
@@ -519,9 +527,12 @@ class BaseTrainer(object):
                     len(train_dataloader) * args.train_batch_size)
         logger.info("  Num batchs = %d", len(train_dataloader))
         logger.info("  Num Epochs = %d", args.num_train_epochs)
-        logger.info("  Batch size (on %d GPU) = %d, batch size per GPU = %d",
-                    self.n_gpu, args.train_batch_size,
-                    args.train_batch_size // self.n_gpu)
+        if self.n_gpu > 0:
+            logger.info("  Batch size (on %d GPU) = %d, batch size per GPU = %d",
+                        self.n_gpu, args.train_batch_size,
+                        args.train_batch_size // self.n_gpu)
+        else:
+            logger.info("  Batch size = %d", args.train_batch_size)
         logger.info(
             "  Total train batch size (w. parallel, distributed & accumulation) = %d",
             args.train_batch_size * args.gradient_accumulation_steps *

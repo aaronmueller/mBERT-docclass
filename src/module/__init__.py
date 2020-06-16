@@ -4,7 +4,7 @@ from .component import (BaseDecoderConfig, BaseEncoderConfig,
                         BertEncoderConfig, LinearDecoderConfig,
                         LSTMDecoderConfig, MeanPoolDecoderConfig,
                         PoolDecoderConfig, XLMEncoderConfig)
-from .model import ParsingConfig, SeqClassConfig, SeqLabelConfig, SeqSepTopClassConfig, SeqSepTopLabelConfig
+from .model import ParsingConfig, SeqClassConfig, SeqLabelConfig, SeqSepTopClassConfig, SeqSepTopLabelConfig, BaselineSeqClassConfig, BaselineSeqLabelConfig
 
 
 def str2bool(v):

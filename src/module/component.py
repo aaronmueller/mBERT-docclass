@@ -84,6 +84,30 @@ class BaseEncoder(nn.Module):
     def get_num_layers(self) -> int:
         raise NotImplementedError
 
+'''
+@dataclass
+class BaselineEncoderConfig(BaseEncoderConfig):
+    mode: str = 'logistic-regression'
+
+    def build(self):
+        return BaselineEncoder(self)
+
+class BaselineInput(BaseInput):
+    token: Tensor
+    token_type: Tensor
+    position: Tensor
+    mask: Tensor
+    lang_key: Optional[str] = None
+
+class BaselineEncoder(BaseEncoder):
+    def __init__(self, config: BaselineEncoderConfig = BaselineEncoderConfig()):
+        VOCAB_SIZE = 30000
+        EMBED_DIM = 512
+        assert isinstance(config, BaselineEncoderConfig)
+        super().__init__(config)
+        self.config = config
+        self.embedding = nn.EmbeddingBag(VOCAB_SIZE, EMBED_DIM, sparse=True)
+'''
 
 @dataclass
 class BertEncoderConfig(BaseEncoderConfig):
