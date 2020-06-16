@@ -1,0 +1,5 @@
+pytorch_transformers
+nltk
+sklearn
+langcodes
+allennlp

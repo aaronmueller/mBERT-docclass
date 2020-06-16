@@ -1,14 +1,16 @@
-source /home/shijie/local/app/miniconda3/bin/activate
+#source /home/shijie/local/app/miniconda3/bin/activate
+source /home/amueller/miniconda3/bin/activate
+conda activate pytorch_cpu
 
 lang=$1
-gpu=0
-if [[ $(hostname -f) = *clsp* ]]; then
-    export PATH=~shijie/local/app/miniconda3/bin:$PATH
-    gpu=`free-gpu`
-fi
+#gpu=0
+#if [[ $(hostname -f) = *clsp* ]]; then
+#    export PATH=~shijie/local/app/miniconda3/bin:$PATH
+#    gpu=`free-gpu`
+#fi
 
-export CUDA_VISIBLE_DEVICES=$gpu
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64:/home/shijie/local/cuda/lib64
+#export CUDA_VISIBLE_DEVICES=$gpu
+#export LD_LIBRARY_PATH=/usr/local/cuda/lib64:/home/shijie/local/cuda/lib64
 
 for lang in $(ls model/tobacco/tuneall); do
 CUDA_VISIBLE_DEVICES=$gpu
@@ -24,6 +26,7 @@ python src/run_classifier.py \
     --max_seq_length 128 \
     --load model/tobacco-new/tuneall/one-model/best/model.pth \
     --output_dir eval/tobacco/tuneall-one/all-$lang \
+	--no_cuda \
     --no_eval_dev
 done
 
