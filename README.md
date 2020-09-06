@@ -1,4 +1,4 @@
-# mBERT Document Classification
+# Multilingual Document Classification with mBERT
 
 ## Installation
 Prerequisites: `pip` and `python 3.7`. Using `anaconda3` or `miniconda3` is highly recommended, and this documentations will assume that you use it.
